@@ -3,9 +3,6 @@
 @REM Add all the assemblies you want to publicize in this list
 set toPublicize=Assembly-CSharp.dll Assembly-CSharp-firstpass.dll
 
-@REM Add all the assemblies you want to copy as-is to the package in this list
-set dontTouch=
-
 set exePath=%1
 echo exePath: %exePath% 
 
@@ -27,11 +24,9 @@ set outPath=%~dp0\package\lib
   %~dp0\tools\NStrip.exe "%managedPath%\%%a" -o "%outPath%\%%a" -cg -p --cg-exclude-events
 ))
 
-@REM Copy over original assemblies for ones we don't want to touch.
-(for %%a in (%dontTouch%) do (
-  echo a: %%a
-
-  xcopy "%managedPath%\%%a" "%outPath%\%%a" /y /v
-))
+@REM Delete System.x, netstandard, and mscorlib dlls since they cause duplicate references (.netframework dev pack)
+del "%outPath%\System.*"
+del "%outPath%\mscorlib.dll"
+del "%outPath%\netstandard.dll"
 
 pause
